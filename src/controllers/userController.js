@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { isValidObjectId } = require("mongoose");
+const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 const aws = require("../aws/aws");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
@@ -50,25 +51,36 @@ exports.getUserProfile = async function (req, res, next) {
   });
 };
 
-exports.updateUser = async function (req, res) {
+exports.updateProfile = async function (req, res, next) {
   const { userId } = req.params;
   if (!isValidObjectId(userId))
-    return res.status(400).send({ status: false, message: "Invalid userId" });
-  const Updatedata = await User.findOneAndUpdate(
-    { _id: userId },
-    { $set: req.body },
-    { new: true, runValidators: true }
-  );
-  res.status(200).send({
-    status: true,
-    message: "User profile Updated",
-    data: Updatedata,
-  });
+    return next(new ErrorHandler(400, "Invalid user ID"));
+  const { fname, lname, address, phone, email, profileImage } = req.body;
+  let { password } = req.body;
+  if (password) {
+    if (password.length >= 8 && password.length <= 15) {
+      password = await bcrypt.hash(password, 12);
+    } else {
+      return next(
+        new ErrorHandler(400, "Password should be between 8-15 characters")
+      );
+    }
+  }
+
+  const user = await User.findOne({ $or: [{ email, phone }] });
+  if (user) {
+    return next(new ErrorHandler(400, "This Email or phone already exist"));
+  }
+  if (Object.keys(req.body).length !== 0) {
+    const Updatedata = await User.findOneAndUpdate(
+      { _id: userId },
+      { $set: { fname, lname, address, phone, email, password, profileImage } },
+      { new: true }
+    );
+    res.status(200).send({
+      status: true,
+      message: "User profile Updated",
+      data: Updatedata,
+    });
+  }
 };
-
-//================================================[MODULE EXPORTS]=======================================================================
-
-// module.exports.createUser = createUser;
-// module.exports.loginUser = loginUser;
-// module.exports.getUserById = getUserById;
-// module.exports.updateUser = updateUse;

@@ -1,7 +1,17 @@
 const express = require("express");
-const { createUser, loginUser } = require("../controllers/userController");
+const {
+  createUser,
+  loginUser,
+  getUserProfile,
+  updateProfile,
+} = require("../controllers/userController");
+const {
+  authentication,
+  authorization,
+} = require("../controllers/authController");
 
 const router = express.Router();
+// eslint-disable-next-line arrow-body-style
 const use = (fn) => {
   return (req, res, next) => {
     fn(req, res, next).catch(next);
@@ -9,17 +19,17 @@ const use = (fn) => {
 };
 // USER APIs
 router.post("/register", use(createUser));
-router.post("/login", loginUser);
-// router.get(
-//   "/user/:userId/profile",
-//   middleware.authentication,
-//   middleware.authorization,
-//   userController.getUserById
-// );
-// router.put(
-//   "/user/:userId/profile",
-//   middleware.authentication,
-//   middleware.authorization,
-//   userController.updateUser
-// );
+router.post("/login", use(loginUser));
+router.get(
+  "/user/:userId/profile",
+  authentication,
+  authorization,
+  use(getUserProfile)
+);
+router.put(
+  "/user/:userId/profile",
+  authentication,
+  authorization,
+  use(updateProfile)
+);
 module.exports = router;

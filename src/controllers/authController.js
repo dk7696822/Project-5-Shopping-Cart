@@ -2,9 +2,8 @@ const jwt = require("jsonwebtoken");
 const { isValidObjectId } = require("mongoose");
 const userModel = require("../models/userModel");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
-//=====================================================Authentication========================================================================
 
-const authentication = function (req, res, next) {
+exports.authentication = function (req, res, next) {
   let token;
   if (
     req.headers.authorization &&
@@ -23,7 +22,7 @@ const authentication = function (req, res, next) {
   next();
 };
 
-const authorization = async function (req, res, next) {
+exports.authorization = async function (req, res, next) {
   const { userId } = req.params;
   if (!isValidObjectId(userId)) {
     return next(new ErrorHandler(400, "Invalid user ID"));
@@ -41,8 +40,3 @@ const authorization = async function (req, res, next) {
 
   next();
 };
-
-//====================================================[MODULE EXPORTS]=====================================================================
-
-module.exports.authentication = authentication;
-module.exports.authorization = authorization;

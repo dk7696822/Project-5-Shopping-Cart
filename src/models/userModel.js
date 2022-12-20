@@ -73,4 +73,5 @@ userSchema.methods.correctPassword = async function (
 ) {
   return bcrypt.compare(givenPassword, savedPassword);
 };
+// eslint-disable-next-line new-cap
 module.exports = new mongoose.model("User", userSchema);
