@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { isValidObjectId } = require("mongoose");
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 const aws = require("../aws/aws");
@@ -53,8 +52,6 @@ exports.getUserProfile = async function (req, res, next) {
 
 exports.updateProfile = async function (req, res, next) {
   const { userId } = req.params;
-  if (!isValidObjectId(userId))
-    return next(new ErrorHandler(400, "Invalid user ID"));
   const { fname, lname, address, phone, email, profileImage } = req.body;
   let { password } = req.body;
   if (password) {

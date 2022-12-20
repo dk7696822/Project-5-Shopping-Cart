@@ -9,6 +9,7 @@ const {
   authentication,
   authorization,
 } = require("../controllers/authController");
+const { createProduct } = require("../controllers/productController");
 
 const router = express.Router();
 // eslint-disable-next-line arrow-body-style
@@ -32,4 +33,5 @@ router.put(
   authorization,
   use(updateProfile)
 );
+router.post("/product", use(createProduct));
 module.exports = router;
