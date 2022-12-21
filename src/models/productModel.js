@@ -47,12 +47,7 @@ const productSchema = new mongoose.Schema(
         values: ["S", "XS", "M", "X", "L", "XXL", "XL"],
         message: "Sizes can only be S, XS, M, XL, L, XXL",
       },
-      validate: {
-        validator: function () {
-          return this.availableSizes.length !== 0;
-        },
-        message: "Please mention the sizes available for your product",
-      },
+      required: [true, "Please mention the sizes available for your product"],
     },
 
     installments: { type: Number },
