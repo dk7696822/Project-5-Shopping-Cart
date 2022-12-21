@@ -9,7 +9,10 @@ const {
   authentication,
   authorization,
 } = require("../controllers/authController");
-const { createProduct } = require("../controllers/productController");
+const {
+  createProduct,
+  getProducts,
+} = require("../controllers/productController");
 
 const router = express.Router();
 // eslint-disable-next-line arrow-body-style
@@ -34,4 +37,5 @@ router.put(
   use(updateProfile)
 );
 router.post("/product", use(createProduct));
+router.get("/product", getProducts);
 module.exports = router;

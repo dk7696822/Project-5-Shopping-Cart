@@ -21,7 +21,12 @@ exports.createProduct = async (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
-  const products = new QueryFilter(Product.find(), req.query).filter();
+  if (Object.keys(req.query).length === 0) {
+    const products = await Product.find();
+    return res.status(200).send({ status: true, data: products });
+  }
+  const queryProducts = new QueryFilter(Product.find(), req.query).filter();
+  const products = await queryProducts.query;
   if (products.length === 0) {
     return next(new ErrorHandler(404, "No products matched this filter"));
   }
