@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { isValidObjectId } = require("mongoose");
-const userModel = require("../models/userModel");
+const User = require("../models/userModel");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
 
 exports.authentication = function (req, res, next) {
@@ -27,7 +27,7 @@ exports.authorization = async function (req, res, next) {
   if (!isValidObjectId(userId)) {
     return next(new ErrorHandler(400, "Invalid user ID"));
   }
-  const user = await userModel.findById(userId);
+  const user = await User.findById(userId);
   if (!user) {
     return next(new ErrorHandler(404, "No user exist with this ID"));
   }
