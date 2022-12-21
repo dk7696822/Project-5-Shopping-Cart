@@ -43,9 +43,15 @@ class QueryFilter {
       (match) => filters[match]
     );
     const queryObj = JSON.parse(queryStr);
-    console.log(queryObj);
     this.query = this.query.find(queryObj);
 
+    return this;
+  }
+
+  sort() {
+    if (this.queryString.priceSort) {
+      this.query = this.query.sort({ price: this.queryString.priceSort });
+    }
     return this;
   }
 }

@@ -2,6 +2,7 @@ const Product = require("../models/productModel");
 const aws = require("../aws/aws");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
 const QueryFilter = require("../utils/QueryFilter");
+const { isValidObjectId } = require("mongoose");
 
 exports.createProduct = async (req, res, next) => {
   const { files } = req;
@@ -21,11 +22,24 @@ exports.createProduct = async (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
+  if (req.params.productId) {
+    if (!isValidObjectId(req.params.productId)) {
+      return next(new ErrorHandler(400, "Invalid ID"));
+    }
+    const product = await Product.findById(req.params.productId);
+    if (!product) {
+      return next(new ErrorHandler(404, "No products exists with this ID"));
+    }
+    return res.status(200).send({ status: true, data: product });
+  }
+
   if (Object.keys(req.query).length === 0) {
     const products = await Product.find();
     return res.status(200).send({ status: true, data: products });
   }
-  const queryProducts = new QueryFilter(Product.find(), req.query).filter();
+  const queryProducts = new QueryFilter(Product.find(), req.query)
+    .filter()
+    .sort();
   const products = await queryProducts.query;
   if (products.length === 0) {
     return next(new ErrorHandler(404, "No products matched this filter"));

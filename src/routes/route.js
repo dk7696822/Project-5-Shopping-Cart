@@ -37,5 +37,5 @@ router.put(
   use(updateProfile)
 );
 router.post("/product", use(createProduct));
-router.get("/product", getProducts);
+router.get("/product/:productId?", getProducts);
 module.exports = router;
