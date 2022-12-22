@@ -1,5 +1,4 @@
 /* eslint-disable operator-assignment */
-/* eslint-disable no-unused-expressions */
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
@@ -32,7 +31,6 @@ exports.addToCart = async (req, res, next) => {
   const result = carts.items.map((el) => {
     if (el.productId === req.body.productId) {
       el.quantity = el.quantity + 1;
-      console.log(el.quantity);
       return el.quantity;
     }
   });
@@ -45,7 +43,7 @@ exports.addToCart = async (req, res, next) => {
         $set: carts,
       },
       { new: true }
-    ).populate("items");
+    );
     return res.status(200).send({ status: true, data: updatedCart });
   }
 
@@ -58,6 +56,50 @@ exports.addToCart = async (req, res, next) => {
       $set: carts,
     },
     { new: true }
-  ).populate("items");
+  );
   return res.status(200).send({ status: true, data: updatedCart });
+};
+
+exports.updateCart = async (req, res, next) => {
+  const cart = await Cart.findOne({ userId: req.params.userId });
+  const product = await Product.findOne({
+    _id: req.body.productId,
+    isDeleted: false,
+  });
+  const carts = JSON.parse(JSON.stringify(cart));
+  if (req.body.removeProduct === "0") {
+    carts.items.forEach((el) => {
+      if (el.productId === req.body.productId) {
+        carts.items.splice(carts.items.indexOf(el), 1);
+        carts.totalItems -= 1;
+        carts.totalPrice -= product.price * el.quantity;
+      }
+    });
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId: req.params.userId },
+      { $set: carts },
+      { new: true }
+    );
+    return res.status(200).send({ status: true, data: updatedCart });
+  }
+  if (req.body.removeProduct === "1") {
+    carts.items.forEach((el) => {
+      if (el.productId === req.body.productId) {
+        if (el.quantity > 1) {
+          carts.totalPrice -= product.price;
+          el.quantity -= 1;
+        } else {
+          carts.totalPrice -= product.price;
+          carts.items.splice(carts.items.indexOf(el), 1);
+          carts.totalItems -= 1;
+        }
+      }
+    });
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId: req.params.userId },
+      { $set: carts },
+      { new: true }
+    );
+    return res.status(200).send({ status: true, data: updatedCart });
+  }
 };
