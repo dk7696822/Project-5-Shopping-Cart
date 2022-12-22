@@ -15,7 +15,12 @@ const {
   updateProduct,
   deleteProduct,
 } = require("../controllers/productController");
-const { addToCart, updateCart } = require("../controllers/cartController");
+const {
+  addToCart,
+  updateCart,
+  getCartSummary,
+  deleteCart,
+} = require("../controllers/cartController");
 
 const router = express.Router();
 // eslint-disable-next-line arrow-body-style
@@ -54,5 +59,17 @@ router.put(
   authentication,
   authorization,
   use(updateCart)
+);
+router.get(
+  "/users/:userId/cart",
+  authentication,
+  authorization,
+  use(getCartSummary)
+);
+router.delete(
+  "/users/:userId/cart",
+  authentication,
+  authorization,
+  use(deleteCart)
 );
 module.exports = router;

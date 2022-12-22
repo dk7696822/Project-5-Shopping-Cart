@@ -62,6 +62,9 @@ exports.addToCart = async (req, res, next) => {
 
 exports.updateCart = async (req, res, next) => {
   const cart = await Cart.findOne({ userId: req.params.userId });
+  if (!cart) {
+    return next(new ErrorHandler(404, "No cart exist for this user"));
+  }
   const product = await Product.findOne({
     _id: req.body.productId,
     isDeleted: false,
@@ -102,4 +105,30 @@ exports.updateCart = async (req, res, next) => {
     );
     return res.status(200).send({ status: true, data: updatedCart });
   }
+};
+exports.getCartSummary = async (req, res, next) => {
+  const cart = await Cart.findOne({ userId: req.params.userId }).populate(
+    "items.productId"
+  );
+  if (!cart) {
+    return next(new ErrorHandler(404, "No cart exist for this user"));
+  }
+  return res.status(200).send({ status: true, data: cart });
+};
+
+exports.deleteCart = async (req, res, next) => {
+  const cart = await Cart.findOne({ userId: req.params.userId });
+  if (!cart) {
+    return next(new ErrorHandler(404, "No cart exist for this user"));
+  }
+  const carts = JSON.parse(JSON.stringify(cart));
+  carts.items.length = 0;
+  carts.totalPrice = 0;
+  carts.totalItems = 0;
+  const deletedCart = await Cart.findOneAndUpdate(
+    { userId: req.params.userId },
+    { $set: carts },
+    { new: true }
+  );
+  return res.status(204).send({ status: true, data: deletedCart });
 };

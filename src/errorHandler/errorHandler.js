@@ -5,6 +5,16 @@ const ValidationError = (err) => {
   return new ErrorHandler(400, message);
 };
 
+const InvalidToken = (err) => {
+  const message = `Invalid token, please provide a valid token: ${err.message}`;
+  return new ErrorHandler(400, message);
+};
+
+const ExpiredToken = (err) => {
+  const message = `Token expired, please login again: ${err.message}`;
+  return new ErrorHandler(400, message);
+};
+
 const DuplicateError = (err) => {
   const message = `Duplicate value provided at ${Object.keys(
     err.keyValue
@@ -23,6 +33,9 @@ module.exports = (err, req, res, next) => {
   if (err.name === "CastError") err = CastError(err);
   if (err.code === 11000) err = DuplicateError(err);
   if (err.name === "ValidationError") err = ValidationError(err);
+  if (err.message === "invalid signature") err = InvalidToken(err);
+  if (err.message === "invalid token") err = InvalidToken(err);
+  if (err.message === "jwt expired") err = ExpiredToken(err);
   return res
     .status(err.statusCode)
     .send({ status: err.status, message: err.message });
