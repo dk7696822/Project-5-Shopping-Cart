@@ -69,7 +69,7 @@ exports.updateProfile = async function (req, res, next) {
     return next(new ErrorHandler(400, "This Email or phone already exist"));
   }
   if (Object.keys(req.body).length !== 0) {
-    const Updatedata = await User.updateOne(
+    const Updatedata = await User.findOneAndUpdate(
       { _id: userId },
       { $set: { fname, lname, address, phone, email, password, profileImage } },
       { new: true }

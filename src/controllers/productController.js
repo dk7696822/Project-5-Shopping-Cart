@@ -71,7 +71,7 @@ exports.deleteProduct = async (req, res, next) => {
   const product = await Product.findOneAndUpdate(
     { _id: req.params.productId, isDeleted: false },
     {
-      $set: { isDeleted: true },
+      $set: { isDeleted: true, deletedAt: Date.now() },
     }
   );
   if (!product) {
