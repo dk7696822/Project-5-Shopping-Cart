@@ -35,17 +35,30 @@ exports.checkOut = async (req, res, next) => {
 };
 
 exports.updateOrder = async (req, res, next) => {
-  if (!req.body.status) {
+  if (!req.body.status || !req.body.orderId) {
     return next(
-      new ErrorHandler(400, "Status not provided, not able to update order")
+      new ErrorHandler(400, "Please provide both status and orderId")
     );
   }
-  const { userId } = req.params;
-  const { status } = req.body;
+  const { status, orderId } = req.body;
+  if (status === "completed") {
+    const order = await Order.findOneAndUpdate(
+      { _id: orderId },
+      { $set: { status } },
+      { new: true }
+    );
+    if (!order) {
+      return next(new ErrorHandler(404, "No order found for this order ID"));
+    }
+    return res.status(200).send({ status: true, data: order });
+  }
   const order = await Order.findOneAndUpdate(
-    { userId },
+    { _id: orderId, cancellable: true },
     { $set: { status } },
     { new: true, runValidators: true }
   );
+  if (!order) {
+    return next(new ErrorHandler(404, "This order can not be cancelled"));
+  }
   return res.status(200).send({ status: true, data: order });
 };
