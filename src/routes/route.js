@@ -5,7 +5,7 @@ const { createUser, loginUser, getUserProfile, updateProfile } = require("../con
 const { authentication, authorization } = require("../controllers/authController");
 const { createProduct, getProducts, updateProduct, deleteProduct } = require("../controllers/productController");
 const { addToCart, updateCart, getCartSummary, deleteCart } = require("../controllers/cartController");
-const { checkOut } = require('../controllers/orderController')
+const { checkOut, updateOrder } = require('../controllers/orderController')
 
 const router = express.Router();
 // eslint-disable-next-line arrow-body-style
@@ -33,5 +33,6 @@ router.get("/users/:userId/cart", authentication, authorization, use(getCartSumm
 router.delete("/users/:userId/cart", authentication, authorization, use(deleteCart));
 
 //ORDER API
-router.post('/users/:userId/orders', use(checkOut))
+router.post('/users/:userId/orders', authentication, authorization, use(checkOut))
+router.put('/users/:userId/orders', authentication, authorization, use(updateOrder))
 module.exports = router;
