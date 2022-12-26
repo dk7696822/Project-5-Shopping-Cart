@@ -1,4 +1,3 @@
-/* eslint-disable operator-assignment */
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
@@ -30,7 +29,7 @@ exports.addToCart = async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
   const result = carts.items.map((el) => {
     if (el.productId === req.body.productId) {
-      el.quantity = el.quantity + 1;
+      el.quantity += 1;
       return el.quantity;
     }
   });

@@ -22,9 +22,7 @@ exports.checkOut = async (req, res, next) => {
   if (!data.cancellable) {
     data.cancellable = true;
   }
-  if (!data.status) {
-    data.status = "pending";
-  }
+  data.status = "pending";
   const order = await Order.create(data);
 
   carts.items.length = 0;
@@ -41,24 +39,36 @@ exports.updateOrder = async (req, res, next) => {
     );
   }
   const { status, orderId } = req.body;
+
+  const order = await Order.findOne({ _id: orderId });
+  if (order.status === "completed") {
+    return next(
+      new ErrorHandler(400, "Order is completed, cannot update status now")
+    );
+  }
+  if (order.status === "cancled") {
+    return next(
+      new ErrorHandler(400, "Order is cancelled, cannot update status now")
+    );
+  }
   if (status === "completed") {
-    const order = await Order.findOneAndUpdate(
+    const updatedOrder = await Order.findOneAndUpdate(
       { _id: orderId },
       { $set: { status } },
       { new: true }
     );
-    if (!order) {
+    if (!updatedOrder) {
       return next(new ErrorHandler(404, "No order found for this order ID"));
     }
-    return res.status(200).send({ status: true, data: order });
+    return res.status(200).send({ status: true, data: updatedOrder });
   }
-  const order = await Order.findOneAndUpdate(
+  const updatedOrder = await Order.findOneAndUpdate(
     { _id: orderId, cancellable: true },
     { $set: { status } },
     { new: true, runValidators: true }
   );
-  if (!order) {
-    return next(new ErrorHandler(404, "This order can not be cancelled"));
+  if (!updatedOrder) {
+    return next(new ErrorHandler(400, "This order can not be cancelled"));
   }
-  return res.status(200).send({ status: true, data: order });
+  return res.status(200).send({ status: true, data: updatedOrder });
 };
