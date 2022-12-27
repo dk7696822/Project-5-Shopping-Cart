@@ -27,8 +27,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide your mobile number"],
       unique: true,
-      min: 100000000,
-      max: 9999999999,
+      validate: {
+        validator: function (mobile) {
+          var re = /^((\+91)?|91)?[6789][0-9]{9}$/;
+          return re.test(mobile);
+        },
+        message: "Please provide a valid mobile number",
+      },
     },
     password: {
       type: String,
