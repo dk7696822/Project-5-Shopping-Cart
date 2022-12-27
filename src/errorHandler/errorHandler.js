@@ -5,6 +5,11 @@ const ValidationError = (err) => {
   return new ErrorHandler(400, message);
 };
 
+const JsonError = (err) => {
+  const message = "Please provide valid JSON";
+  return new ErrorHandler(400, message);
+};
+
 const InvalidToken = (err) => {
   const message = `Invalid token, please provide a valid token: ${err.message}`;
   return new ErrorHandler(400, message);
@@ -36,6 +41,7 @@ module.exports = (err, req, res, next) => {
   if (err.message === "invalid signature") err = InvalidToken(err);
   if (err.message === "invalid token") err = InvalidToken(err);
   if (err.message === "jwt expired") err = ExpiredToken(err);
+  if (err.message.includes("JSON")) err = JsonError(err);
   return res
     .status(err.statusCode)
     .send({ status: err.status, message: err.message });

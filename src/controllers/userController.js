@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 const aws = require("../aws/aws");
 const ErrorHandler = require("../errorHandler/errorHandlingClass");
+const validator = require("validator");
 
 exports.createUser = async function (req, res, next) {
   const { files } = req;
@@ -63,7 +64,21 @@ exports.updateProfile = async function (req, res, next) {
       );
     }
   }
+  if (phone) {
+    const validate = /^((\+91)?|91)?[6789][0-9]{9}$/;
+    if (validate.test(phone) === false) {
+      return next(new ErrorHandler(400, "Please provide a valid phone number"));
+    }
+  }
+  if (email) {
+    console.log(validator.isEmail(email));
+    const validate = validator.isEmail(email);
+    console.log(typeof validate);
 
+    if (validate === false) {
+      return next(new ErrorHandler(400, "Please provide a valid emaileee"));
+    }
+  }
   const user = await User.findOne({ $or: [{ email, phone }] });
   if (user) {
     return next(new ErrorHandler(400, "This Email or phone already exist"));

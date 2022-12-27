@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate: {
         validator: function (mobile) {
-          var re = /^((\+91)?|91)?[6789][0-9]{9}$/;
+          const re = /^((\+91)?|91)?[6789][0-9]{9}$/;
           return re.test(mobile);
         },
         message: "Please provide a valid mobile number",
