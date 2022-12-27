@@ -41,6 +41,9 @@ exports.updateOrder = async (req, res, next) => {
   const { status, orderId } = req.body;
 
   const order = await Order.findOne({ _id: orderId });
+  if (!order) {
+    return next(new ErrorHandler(404, "No order found for this Order Id"));
+  }
   if (order.status === "completed") {
     return next(
       new ErrorHandler(400, "Order is completed, cannot update status now")
