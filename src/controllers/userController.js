@@ -11,7 +11,8 @@ exports.createUser = async function (req, res, next) {
     return next(new ErrorHandler(400, "Please upload profile picture"));
   }
   req.body.profileImage = await aws.uploadFile(files[0]);
-
+  console.log(typeof req.body.address);
+  console.log(req.body.address.shipping);
   const newUser = await User.create(req.body);
   res.status(201).send({
     status: true,
@@ -79,6 +80,33 @@ exports.updateProfile = async function (req, res, next) {
       return next(new ErrorHandler(400, "Please provide a valid emaileee"));
     }
   }
+  if (address) {
+    var newAddress = JSON.parse(address);
+
+    if (!newAddress.shipping || !newAddress.billing) {
+      return next(
+        new ErrorHandler(
+          400,
+          "Please provide both shipping and billing newAddress"
+        )
+      );
+    }
+    if (
+      !newAddress.shipping.street ||
+      !newAddress.billing.street ||
+      !newAddress.shipping.city ||
+      !newAddress.billing.city ||
+      !newAddress.shipping.pincode ||
+      !newAddress.billing.pincode
+    ) {
+      return next(
+        new ErrorHandler(
+          400,
+          "Please provide street, city and pincode all three parameters in both shipping and billing address"
+        )
+      );
+    }
+  }
   const user = await User.findOne({ $or: [{ email, phone }] });
   if (user) {
     return next(new ErrorHandler(400, "This Email or phone already exist"));
@@ -86,7 +114,17 @@ exports.updateProfile = async function (req, res, next) {
   if (Object.keys(req.body).length !== 0) {
     const Updatedata = await User.findOneAndUpdate(
       { _id: userId },
-      { $set: { fname, lname, address, phone, email, password, profileImage } },
+      {
+        $set: {
+          fname,
+          lname,
+          address: newAddress,
+          phone,
+          email,
+          password,
+          profileImage,
+        },
+      },
       { new: true }
     );
     res.status(200).send({
