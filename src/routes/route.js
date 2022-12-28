@@ -21,10 +21,10 @@ router.get("/user/:userId/profile", authentication, authorization, use(getUserPr
 router.put("/user/:userId/profile", authentication, authorization, use(updateProfile));
 
 //PRODUCT API
-router.post("/product", use(createProduct));
-router.get("/product/:productId?", use(getProducts));
-router.put("/product/:productId", use(updateProduct));
-router.delete("/product/:productId", use(deleteProduct));
+router.post("/products", use(createProduct));
+router.get("/products/:productId?", use(getProducts));
+router.put("/products/:productId", use(updateProduct));
+router.delete("/products/:productId", use(deleteProduct));
 
 //CART API
 router.post("/users/:userId/cart", authentication, authorization, use(addToCart));
